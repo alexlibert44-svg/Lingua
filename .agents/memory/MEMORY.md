@@ -1,0 +1,1 @@
+- [Zod codegen compatibility](zod-codegen-compatibility.md) — Orval integer schemas require the workspace to use Zod 4.

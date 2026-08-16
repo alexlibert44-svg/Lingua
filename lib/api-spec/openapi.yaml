@@ -10,6 +10,14 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: dashboard
+    description: Home dashboard and profile summaries
+  - name: word-sets
+    description: User-owned vocabulary sets
+  - name: words
+    description: Vocabulary word details
+  - name: practice
+    description: Learning and review attempts
 paths:
   /healthz:
     get:
@@ -24,7 +32,171 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get the home dashboard
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dashboard"
+  /profile:
+    get:
+      operationId: getProfile
+      tags: [dashboard]
+      summary: Get learning profile statistics
+      responses:
+        "200":
+          description: Profile summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+  /word-sets:
+    get:
+      operationId: listWordSets
+      tags: [word-sets]
+      summary: List the user's word sets
+      responses:
+        "200":
+          description: Word sets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WordSetSummary"
+    post:
+      operationId: createWordSet
+      tags: [word-sets]
+      summary: Create a word set with at least four words
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WordSetInput"
+      responses:
+        "201":
+          description: Created word set
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WordSet"
+        "400":
+          description: Invalid word set
+  /word-sets/{setId}:
+    get:
+      operationId: getWordSet
+      tags: [word-sets]
+      summary: Get a word set and its words
+      parameters:
+        - $ref: "#/components/parameters/SetId"
+      responses:
+        "200":
+          description: Word set
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WordSet"
+        "404":
+          description: Word set not found
+    patch:
+      operationId: updateWordSet
+      tags: [word-sets]
+      summary: Rename a word set
+      parameters:
+        - $ref: "#/components/parameters/SetId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WordSetUpdate"
+      responses:
+        "200":
+          description: Updated word set
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WordSet"
+    delete:
+      operationId: deleteWordSet
+      tags: [word-sets]
+      summary: Delete a word set and its words
+      parameters:
+        - $ref: "#/components/parameters/SetId"
+      responses:
+        "204":
+          description: Deleted
+  /words/{wordId}:
+    get:
+      operationId: getWord
+      tags: [words]
+      summary: Get a word with performance breakdown
+      parameters:
+        - $ref: "#/components/parameters/WordId"
+      responses:
+        "200":
+          description: Word details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Word"
+        "404":
+          description: Word not found
+  /review:
+    get:
+      operationId: getReview
+      tags: [practice]
+      summary: Get the current review queue summary
+      responses:
+        "200":
+          description: Review summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+  /practice-attempts:
+    post:
+      operationId: createPracticeAttempt
+      tags: [practice]
+      summary: Record a learning attempt and update mastery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeAttemptInput"
+      responses:
+        "201":
+          description: Recorded attempt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeAttempt"
+        "404":
+          description: Word not found
 components:
+  parameters:
+    SetId:
+      name: setId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    WordId:
+      name: wordId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
   schemas:
     HealthStatus:
       type: object
@@ -33,4 +205,133 @@ components:
           type: string
       required:
         - status
+    WordStatus:
+      type: string
+      enum: [New, Learning, Familiar, Strong, Mastered]
+    Skill:
+      type: string
+      enum: [recognition, listening, reading, writing, speaking, recall, sentence_usage, tense_form]
+    Word:
+      type: object
+      required: [id, setId, text, meaning, pronunciation, sentence, mastery, status, writing, speaking, recall]
+      properties:
+        id: { type: integer }
+        setId: { type: integer }
+        text: { type: string }
+        meaning: { type: string }
+        pronunciation: { type: string }
+        sentence: { type: string }
+        mastery: { type: integer, minimum: 0, maximum: 100 }
+        status: { $ref: "#/components/schemas/WordStatus" }
+        writing: { type: integer, minimum: 0, maximum: 100 }
+        speaking: { type: integer, minimum: 0, maximum: 100 }
+        recall: { type: integer, minimum: 0, maximum: 100 }
+        attempts: { type: integer, minimum: 0 }
+        mistakes: { type: integer, minimum: 0 }
+        lastReviewed: { type: ["string", "null"], format: date-time }
+        nextReview: { type: ["string", "null"], format: date-time }
+    WordSetSummary:
+      type: object
+      required: [id, name, wordCount, mastery, dueCount, lastPracticed]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        wordCount: { type: integer }
+        mastery: { type: integer, minimum: 0, maximum: 100 }
+        dueCount: { type: integer, minimum: 0 }
+        lastPracticed: { type: ["string", "null"], format: date-time }
+    WordSet:
+      allOf:
+        - $ref: "#/components/schemas/WordSetSummary"
+        - type: object
+          required: [words]
+          properties:
+            words:
+              type: array
+              items:
+                $ref: "#/components/schemas/Word"
+    WordSetInput:
+      type: object
+      required: [name, words]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        words:
+          type: array
+          minItems: 4
+          maxItems: 50
+          items: { type: string, minLength: 1, maxLength: 80 }
+    WordSetUpdate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+    PracticeAttemptInput:
+      type: object
+      required: [wordId, skill, correct]
+      properties:
+        wordId: { type: integer, minimum: 1 }
+        skill: { $ref: "#/components/schemas/Skill" }
+        correct: { type: boolean }
+        answer: { type: ["string", "null"] }
+    PracticeAttempt:
+      type: object
+      required: [id, wordId, skill, correct, createdAt, mastery]
+      properties:
+        id: { type: integer }
+        wordId: { type: integer }
+        skill: { $ref: "#/components/schemas/Skill" }
+        correct: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        mastery: { type: integer, minimum: 0, maximum: 100 }
+    Dashboard:
+      type: object
+      required: [greeting, minutesLearned, dailyGoal, streak, reviewItems, reviewBreakdown, continueSet, recentSets]
+      properties:
+        greeting: { type: string }
+        minutesLearned: { type: integer, minimum: 0 }
+        dailyGoal: { type: integer, minimum: 1 }
+        streak: { type: integer, minimum: 0 }
+        reviewItems: { type: integer, minimum: 0 }
+        reviewBreakdown:
+          type: object
+          required: [words, sentences, writing, speaking]
+          properties:
+            words: { type: integer, minimum: 0 }
+            sentences: { type: integer, minimum: 0 }
+            writing: { type: integer, minimum: 0 }
+            speaking: { type: integer, minimum: 0 }
+        continueSet:
+          oneOf:
+            - $ref: "#/components/schemas/WordSetSummary"
+            - type: "null"
+        recentSets:
+          type: array
+          items:
+            $ref: "#/components/schemas/WordSetSummary"
+    Review:
+      type: object
+      required: [total, words, sentences, writing, speaking, recall, forms]
+      properties:
+        total: { type: integer, minimum: 0 }
+        words: { type: integer, minimum: 0 }
+        sentences: { type: integer, minimum: 0 }
+        writing: { type: integer, minimum: 0 }
+        speaking: { type: integer, minimum: 0 }
+        recall: { type: integer, minimum: 0 }
+        forms: { type: integer, minimum: 0 }
+    Profile:
+      type: object
+      required: [overallProgress, wordsLearned, sentencesPracticed, speakingPractice, writingPractice, currentStreak, longestStreak, dailyGoal, achievements]
+      properties:
+        overallProgress: { type: integer, minimum: 0, maximum: 100 }
+        wordsLearned: { type: integer, minimum: 0 }
+        sentencesPracticed: { type: integer, minimum: 0 }
+        speakingPractice: { type: integer, minimum: 0 }
+        writingPractice: { type: integer, minimum: 0 }
+        currentStreak: { type: integer, minimum: 0 }
+        longestStreak: { type: integer, minimum: 0 }
+        dailyGoal: { type: integer, minimum: 1 }
+        achievements:
+          type: array
+          items: { type: string }
 

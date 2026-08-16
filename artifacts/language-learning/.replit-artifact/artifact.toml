@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "LingoFlow"
+description = "A mobile-first language learning app that turns user-created word sets into contextual practice, writing exercises, speaking practice, review, and measurable progress."
+version = "1.0.0"
+id = "artifacts/language-learning"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23315
+
+[services.development]
+run = "pnpm --filter @workspace/language-learning run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/language-learning", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/language-learning/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23315"
+BASE_PATH = "/"
