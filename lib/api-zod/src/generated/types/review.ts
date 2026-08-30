@@ -9,16 +9,7 @@
 export interface Review {
   /** @minimum 0 */
   total: number;
-  /** @minimum 0 */
-  words: number;
-  /** @minimum 0 */
-  sentences: number;
-  /** @minimum 0 */
-  writing: number;
-  /** @minimum 0 */
-  speaking: number;
-  /** @minimum 0 */
-  recall: number;
-  /** @minimum 0 */
-  forms: number;
+  hasPracticeHistory: boolean;
+  /** @nullable */
+  dueSetId: number | null;
 }

@@ -7,11 +7,14 @@
  */
 
 export * from './dashboard';
-export * from './dashboardReviewBreakdown';
+export * from './getDashboardParams';
+export * from './getProfileParams';
 export * from './healthStatus';
+export * from './localDateParameter';
 export * from './practiceAttempt';
 export * from './practiceAttemptInput';
 export * from './profile';
+export * from './profileUpdate';
 export * from './review';
 export * from './skill';
 export * from './word';

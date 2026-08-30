@@ -19,4 +19,6 @@ export interface WordSetSummary {
   dueCount: number;
   /** @nullable */
   lastPracticed: Date | null;
+  nativeLanguage: string;
+  targetLanguage: string;
 }

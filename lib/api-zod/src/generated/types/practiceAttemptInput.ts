@@ -14,4 +14,11 @@ export interface PracticeAttemptInput {
   correct: boolean;
   /** @nullable */
   answer?: string | null;
+  /** @minimum 0 */
+  durationSeconds?: number;
+  /**
+     * @nullable
+     * @pattern ^\d{4}-\d{2}-\d{2}$
+     */
+  activityDate?: string | null;
 }

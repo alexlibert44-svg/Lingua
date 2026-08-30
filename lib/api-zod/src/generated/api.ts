@@ -20,6 +20,13 @@ export const HealthCheckResponse = zod.object({
 /**
  * @summary Get the home dashboard
  */
+export const getDashboardQueryDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const GetDashboardQueryParams = zod.object({
+  "date": zod.coerce.string().regex(getDashboardQueryDateRegExp).optional()
+})
+
 export const getDashboardResponseMinutesLearnedMin = 0;
 
 
@@ -27,23 +34,10 @@ export const getDashboardResponseStreakMin = 0;
 
 export const getDashboardResponseReviewItemsMin = 0;
 
-export const getDashboardResponseReviewBreakdownWordsMin = 0;
-
-export const getDashboardResponseReviewBreakdownSentencesMin = 0;
-
-export const getDashboardResponseReviewBreakdownWritingMin = 0;
-
-export const getDashboardResponseReviewBreakdownSpeakingMin = 0;
-
 export const getDashboardResponseContinueSetOneMasteryMin = 0;
 export const getDashboardResponseContinueSetOneMasteryMax = 100;
 
 export const getDashboardResponseContinueSetOneDueCountMin = 0;
-
-export const getDashboardResponseRecentSetsItemMasteryMin = 0;
-export const getDashboardResponseRecentSetsItemMasteryMax = 100;
-
-export const getDashboardResponseRecentSetsItemDueCountMin = 0;
 
 
 
@@ -53,62 +47,80 @@ export const GetDashboardResponse = zod.object({
   "dailyGoal": zod.int().min(1),
   "streak": zod.int().min(getDashboardResponseStreakMin),
   "reviewItems": zod.int().min(getDashboardResponseReviewItemsMin),
-  "reviewBreakdown": zod.object({
-  "words": zod.int().min(getDashboardResponseReviewBreakdownWordsMin),
-  "sentences": zod.int().min(getDashboardResponseReviewBreakdownSentencesMin),
-  "writing": zod.int().min(getDashboardResponseReviewBreakdownWritingMin),
-  "speaking": zod.int().min(getDashboardResponseReviewBreakdownSpeakingMin)
-}),
   "continueSet": zod.union([zod.object({
   "id": zod.int(),
   "name": zod.string(),
   "wordCount": zod.int(),
   "mastery": zod.int().min(getDashboardResponseContinueSetOneMasteryMin).max(getDashboardResponseContinueSetOneMasteryMax),
   "dueCount": zod.int().min(getDashboardResponseContinueSetOneDueCountMin),
-  "lastPracticed": zod.coerce.date().nullable()
-}),zod.null()]),
-  "recentSets": zod.array(zod.object({
-  "id": zod.int(),
-  "name": zod.string(),
-  "wordCount": zod.int(),
-  "mastery": zod.int().min(getDashboardResponseRecentSetsItemMasteryMin).max(getDashboardResponseRecentSetsItemMasteryMax),
-  "dueCount": zod.int().min(getDashboardResponseRecentSetsItemDueCountMin),
-  "lastPracticed": zod.coerce.date().nullable()
-}))
+  "lastPracticed": zod.coerce.date().nullable(),
+  "nativeLanguage": zod.string(),
+  "targetLanguage": zod.string()
+}),zod.null()])
 })
 
 
 /**
- * @summary Get learning profile statistics
+ * @summary Get learning profile and preferences
  */
-export const getProfileResponseOverallProgressMin = 0;
-export const getProfileResponseOverallProgressMax = 100;
+export const getProfileQueryDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 
-export const getProfileResponseWordsLearnedMin = 0;
 
-export const getProfileResponseSentencesPracticedMin = 0;
+export const GetProfileQueryParams = zod.object({
+  "date": zod.coerce.string().regex(getProfileQueryDateRegExp).optional()
+})
 
-export const getProfileResponseSpeakingPracticeMin = 0;
-
-export const getProfileResponseWritingPracticeMin = 0;
 
 export const getProfileResponseCurrentStreakMin = 0;
-
-export const getProfileResponseLongestStreakMin = 0;
-
 
 
 
 export const GetProfileResponse = zod.object({
-  "overallProgress": zod.int().min(getProfileResponseOverallProgressMin).max(getProfileResponseOverallProgressMax),
-  "wordsLearned": zod.int().min(getProfileResponseWordsLearnedMin),
-  "sentencesPracticed": zod.int().min(getProfileResponseSentencesPracticedMin),
-  "speakingPractice": zod.int().min(getProfileResponseSpeakingPracticeMin),
-  "writingPractice": zod.int().min(getProfileResponseWritingPracticeMin),
-  "currentStreak": zod.int().min(getProfileResponseCurrentStreakMin),
-  "longestStreak": zod.int().min(getProfileResponseLongestStreakMin),
+  "userName": zod.string(),
+  "nativeLanguage": zod.string(),
+  "targetLanguage": zod.string(),
   "dailyGoal": zod.int().min(1),
-  "achievements": zod.array(zod.string())
+  "onboardingComplete": zod.boolean(),
+  "currentStreak": zod.int().min(getProfileResponseCurrentStreakMin),
+  "hasPracticeHistory": zod.boolean()
+})
+
+
+/**
+ * @summary Save onboarding or learning preferences
+ */
+export const updateProfileBodyNativeLanguageMax = 80;
+
+export const updateProfileBodyTargetLanguageMax = 80;
+
+export const updateProfileBodyDailyGoalMin = 5;
+export const updateProfileBodyDailyGoalMax = 60;
+
+export const updateProfileBodyUserNameMax = 80;
+
+
+
+export const UpdateProfileBody = zod.object({
+  "nativeLanguage": zod.string().min(1).max(updateProfileBodyNativeLanguageMax).optional(),
+  "targetLanguage": zod.string().min(1).max(updateProfileBodyTargetLanguageMax).optional(),
+  "dailyGoal": zod.int().min(updateProfileBodyDailyGoalMin).max(updateProfileBodyDailyGoalMax).optional(),
+  "onboardingComplete": zod.boolean().optional(),
+  "userName": zod.string().min(1).max(updateProfileBodyUserNameMax).optional()
+})
+
+
+export const updateProfileResponseCurrentStreakMin = 0;
+
+
+
+export const UpdateProfileResponse = zod.object({
+  "userName": zod.string(),
+  "nativeLanguage": zod.string(),
+  "targetLanguage": zod.string(),
+  "dailyGoal": zod.int().min(1),
+  "onboardingComplete": zod.boolean(),
+  "currentStreak": zod.int().min(updateProfileResponseCurrentStreakMin),
+  "hasPracticeHistory": zod.boolean()
 })
 
 
@@ -128,7 +140,9 @@ export const ListWordSetsResponseItem = zod.object({
   "wordCount": zod.int(),
   "mastery": zod.int().min(listWordSetsResponseMasteryMin).max(listWordSetsResponseMasteryMax),
   "dueCount": zod.int().min(listWordSetsResponseDueCountMin),
-  "lastPracticed": zod.coerce.date().nullable()
+  "lastPracticed": zod.coerce.date().nullable(),
+  "nativeLanguage": zod.string(),
+  "targetLanguage": zod.string()
 })
 export const ListWordSetsResponse = zod.array(ListWordSetsResponseItem)
 
@@ -137,6 +151,10 @@ export const ListWordSetsResponse = zod.array(ListWordSetsResponseItem)
  * @summary Create a word set with at least four words
  */
 export const createWordSetBodyNameMax = 80;
+
+export const createWordSetBodyNativeLanguageMax = 80;
+
+export const createWordSetBodyTargetLanguageMax = 80;
 
 export const createWordSetBodyWordsItemMax = 80;
 
@@ -147,6 +165,8 @@ export const createWordSetBodyWordsMax = 50;
 
 export const CreateWordSetBody = zod.object({
   "name": zod.string().min(1).max(createWordSetBodyNameMax),
+  "nativeLanguage": zod.string().min(1).max(createWordSetBodyNativeLanguageMax),
+  "targetLanguage": zod.string().min(1).max(createWordSetBodyTargetLanguageMax),
   "words": zod.array(zod.string().min(1).max(createWordSetBodyWordsItemMax)).min(createWordSetBodyWordsMin).max(createWordSetBodyWordsMax)
 })
 
@@ -179,15 +199,19 @@ export const CreateWordSetResponse = zod.object({
   "wordCount": zod.int(),
   "mastery": zod.int().min(createWordSetResponseOneMasteryMin).max(createWordSetResponseOneMasteryMax),
   "dueCount": zod.int().min(createWordSetResponseOneDueCountMin),
-  "lastPracticed": zod.coerce.date().nullable()
+  "lastPracticed": zod.coerce.date().nullable(),
+  "nativeLanguage": zod.string(),
+  "targetLanguage": zod.string()
 }).and(zod.object({
   "words": zod.array(zod.object({
   "id": zod.int(),
   "setId": zod.int(),
   "text": zod.string(),
   "meaning": zod.string(),
+  "translation": zod.string(),
   "pronunciation": zod.string(),
   "sentence": zod.string(),
+  "sentenceTranslation": zod.string(),
   "mastery": zod.int().min(createWordSetResponseTwoWordsItemMasteryMin).max(createWordSetResponseTwoWordsItemMasteryMax),
   "status": zod.enum(['New', 'Learning', 'Familiar', 'Strong', 'Mastered']),
   "writing": zod.int().min(createWordSetResponseTwoWordsItemWritingMin).max(createWordSetResponseTwoWordsItemWritingMax),
@@ -240,15 +264,19 @@ export const GetWordSetResponse = zod.object({
   "wordCount": zod.int(),
   "mastery": zod.int().min(getWordSetResponseOneMasteryMin).max(getWordSetResponseOneMasteryMax),
   "dueCount": zod.int().min(getWordSetResponseOneDueCountMin),
-  "lastPracticed": zod.coerce.date().nullable()
+  "lastPracticed": zod.coerce.date().nullable(),
+  "nativeLanguage": zod.string(),
+  "targetLanguage": zod.string()
 }).and(zod.object({
   "words": zod.array(zod.object({
   "id": zod.int(),
   "setId": zod.int(),
   "text": zod.string(),
   "meaning": zod.string(),
+  "translation": zod.string(),
   "pronunciation": zod.string(),
   "sentence": zod.string(),
+  "sentenceTranslation": zod.string(),
   "mastery": zod.int().min(getWordSetResponseTwoWordsItemMasteryMin).max(getWordSetResponseTwoWordsItemMasteryMax),
   "status": zod.enum(['New', 'Learning', 'Familiar', 'Strong', 'Mastered']),
   "writing": zod.int().min(getWordSetResponseTwoWordsItemWritingMin).max(getWordSetResponseTwoWordsItemWritingMax),
@@ -309,15 +337,19 @@ export const UpdateWordSetResponse = zod.object({
   "wordCount": zod.int(),
   "mastery": zod.int().min(updateWordSetResponseOneMasteryMin).max(updateWordSetResponseOneMasteryMax),
   "dueCount": zod.int().min(updateWordSetResponseOneDueCountMin),
-  "lastPracticed": zod.coerce.date().nullable()
+  "lastPracticed": zod.coerce.date().nullable(),
+  "nativeLanguage": zod.string(),
+  "targetLanguage": zod.string()
 }).and(zod.object({
   "words": zod.array(zod.object({
   "id": zod.int(),
   "setId": zod.int(),
   "text": zod.string(),
   "meaning": zod.string(),
+  "translation": zod.string(),
   "pronunciation": zod.string(),
   "sentence": zod.string(),
+  "sentenceTranslation": zod.string(),
   "mastery": zod.int().min(updateWordSetResponseTwoWordsItemMasteryMin).max(updateWordSetResponseTwoWordsItemMasteryMax),
   "status": zod.enum(['New', 'Learning', 'Familiar', 'Strong', 'Mastered']),
   "writing": zod.int().min(updateWordSetResponseTwoWordsItemWritingMin).max(updateWordSetResponseTwoWordsItemWritingMax),
@@ -377,8 +409,10 @@ export const GetWordResponse = zod.object({
   "setId": zod.int(),
   "text": zod.string(),
   "meaning": zod.string(),
+  "translation": zod.string(),
   "pronunciation": zod.string(),
   "sentence": zod.string(),
+  "sentenceTranslation": zod.string(),
   "mastery": zod.int().min(getWordResponseMasteryMin).max(getWordResponseMasteryMax),
   "status": zod.enum(['New', 'Learning', 'Familiar', 'Strong', 'Mastered']),
   "writing": zod.int().min(getWordResponseWritingMin).max(getWordResponseWritingMax),
@@ -396,28 +430,12 @@ export const GetWordResponse = zod.object({
  */
 export const getReviewResponseTotalMin = 0;
 
-export const getReviewResponseWordsMin = 0;
-
-export const getReviewResponseSentencesMin = 0;
-
-export const getReviewResponseWritingMin = 0;
-
-export const getReviewResponseSpeakingMin = 0;
-
-export const getReviewResponseRecallMin = 0;
-
-export const getReviewResponseFormsMin = 0;
-
 
 
 export const GetReviewResponse = zod.object({
   "total": zod.int().min(getReviewResponseTotalMin),
-  "words": zod.int().min(getReviewResponseWordsMin),
-  "sentences": zod.int().min(getReviewResponseSentencesMin),
-  "writing": zod.int().min(getReviewResponseWritingMin),
-  "speaking": zod.int().min(getReviewResponseSpeakingMin),
-  "recall": zod.int().min(getReviewResponseRecallMin),
-  "forms": zod.int().min(getReviewResponseFormsMin)
+  "hasPracticeHistory": zod.boolean(),
+  "dueSetId": zod.int().nullable()
 })
 
 
@@ -425,13 +443,18 @@ export const GetReviewResponse = zod.object({
  * @summary Record a learning attempt and update mastery
  */
 
+export const createPracticeAttemptBodyDurationSecondsMin = 0;
+
+export const createPracticeAttemptBodyActivityDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 
 
 export const CreatePracticeAttemptBody = zod.object({
   "wordId": zod.int().min(1),
   "skill": zod.enum(['recognition', 'listening', 'reading', 'writing', 'speaking', 'recall', 'sentence_usage', 'tense_form']),
   "correct": zod.boolean(),
-  "answer": zod.string().nullish()
+  "answer": zod.string().nullish(),
+  "durationSeconds": zod.int().min(createPracticeAttemptBodyDurationSecondsMin).optional(),
+  "activityDate": zod.string().regex(createPracticeAttemptBodyActivityDateRegExp).nullish()
 })
 
 export const createPracticeAttemptResponseMasteryMin = 0;

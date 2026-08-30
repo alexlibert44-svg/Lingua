@@ -1,0 +1,448 @@
+LINGOFLOW — FINAL MVP FUNCTIONALITY UPDATE
+
+You are working on the existing LingoFlow language-learning application.
+
+Do NOT rebuild the application from scratch.
+Do NOT redesign the existing UI.
+Keep the current visual style, layout, colors, typography, RTL Arabic interface, bottom navigation, and existing screens.
+
+This task has TWO main goals:
+
+1. Fix the current Create Set button bug.
+2. Implement AI-powered processing of every word added by the user.
+
+==================================================
+PART 1 — FIX CREATE SET BUTTON
+==================================================
+
+CURRENT BUG:
+
+On the "إضافة مجموعة" / Create Set screen, the user can enter 4 words and the interface correctly displays:
+
+"تم إضافة 4"
+
+However, the button:
+
+"إنشاء المجموعة"
+
+remains disabled.
+
+FIX THE ROOT CAUSE.
+
+The minimum number of valid words is 4.
+
+Button behavior:
+
+0 valid words → disabled
+1 valid word → disabled
+2 valid words → disabled
+3 valid words → disabled
+4 valid words → ENABLED
+5+ valid words → ENABLED
+
+Use the actual current words state/array.
+
+A valid word means:
+
+word.trim().length > 0
+
+Do not use a separate counter that can become out of sync with the actual words.
+
+The button must react immediately when:
+
+- a word is entered
+- a word is edited
+- a word is deleted
+- another word is added
+
+When the user presses "إنشاء المجموعة":
+
+1. Validate the words again.
+2. Make sure there are at least 4 valid words.
+3. Process the words using the AI system described below.
+4. Create the Set.
+5. Save the Set persistently.
+6. Save all processed word data.
+7. Make the Set appear in "مجموعاتي".
+8. Open the newly created Set or show the appropriate success state.
+
+The button must actually work, not just change color.
+
+==================================================
+PART 2 — AI WORD PROCESSING
+==================================================
+
+After the user enters the words and presses:
+
+"إنشاء المجموعة"
+
+the application must process every word using the AI.
+
+The application already asks the user during onboarding for:
+
+1. Native language
+2. Target language
+
+These settings must determine the AI processing language.
+
+Example:
+
+Native language: Arabic
+Target language: English
+
+If the user enters:
+
+Sorry
+Speak
+Beautiful
+Quickly
+
+the AI should process each word and return structured information.
+
+For every word, generate:
+
+- Original word
+- Translation into the user's native language
+- Part of speech
+- Pronunciation
+- Example sentence in the target language
+- Translation of the example sentence into the native language
+
+Example:
+
+Word:
+Speak
+
+Translation:
+يتحدث
+
+Part of speech:
+Verb
+
+Example:
+I speak English every day.
+
+Sentence translation:
+أنا أتحدث الإنجليزية كل يوم.
+
+==================================================
+PART 3 — PART OF SPEECH CLASSIFICATION
+==================================================
+
+The AI must classify each word.
+
+Supported categories:
+
+- Noun — اسم
+- Verb — فعل
+- Adjective — صفة
+- Adverb — ظرف
+- Pronoun — ضمير
+- Preposition — حرف جر
+- Conjunction — أداة ربط
+- Article / Determiner — أداة تعريف/تحديد
+- Expression — تعبير
+- Other — أخرى
+
+IMPORTANT:
+
+A word can have multiple grammatical uses.
+
+For example:
+
+"light"
+
+can be:
+
+- Noun
+- Verb
+- Adjective
+
+Do not incorrectly force every word into one category when the word genuinely has multiple grammatical functions.
+
+If necessary, store:
+
+primaryPartOfSpeech
+and
+alternativePartsOfSpeech
+
+The AI should select the most appropriate classification for the intended learning context.
+
+==================================================
+PART 4 — STRUCTURED AI RESPONSE
+==================================================
+
+Do NOT store the AI response as an unstructured paragraph.
+
+The AI response must be structured data.
+
+Use a structure similar to:
+
+{
+  "word": "speak",
+  "translation": "يتحدث",
+  "partOfSpeech": "verb",
+  "pronunciation": "...",
+  "exampleSentence": "I speak English every day.",
+  "exampleTranslation": "أنا أتحدث الإنجليزية كل يوم."
+}
+
+Store this information with the word.
+
+The architecture must make this data available later to:
+
+- Word review
+- Sentence practice
+- Writing practice
+- Speaking practice
+- Spaced repetition
+- Part-of-speech filtering
+
+==================================================
+PART 5 — LANGUAGE SYSTEM
+==================================================
+
+The user's native language and target language must be global application settings.
+
+Example:
+
+Native language = Arabic
+Target language = English
+
+Then:
+
+UI language → Arabic
+Word translations → Arabic
+Sentence translations → Arabic
+Learning content → English
+
+If the user changes their native language later, the application should use the new native language for future generated translations.
+
+Do NOT hardcode Arabic-English behavior.
+
+The system should be designed so that:
+
+Arabic → English
+French → English
+Spanish → English
+English → Spanish
+etc.
+
+can work through the same architecture.
+
+==================================================
+PART 6 — AI ERROR HANDLING
+==================================================
+
+The application must NOT fail completely if AI processing fails.
+
+Handle:
+
+- API errors
+- Invalid AI response
+- Network errors
+- Missing fields
+- Rate limits
+
+Show a clear loading state while processing.
+
+Example:
+
+"جارٍ تجهيز كلماتك..."
+
+If processing fails:
+
+- Keep the user's entered words.
+- Do not delete the Set.
+- Allow retry.
+- Do not create duplicate Sets.
+
+Validate the AI response before saving it.
+
+==================================================
+PART 7 — PERSISTENT DATA
+==================================================
+
+The following data must persist after refresh/reopening the app:
+
+USER:
+
+- Native language
+- Target language
+
+SET:
+
+- Set ID
+- Set name
+- Creation date
+- Word count
+
+WORD:
+
+- Word ID
+- Original word
+- Translation
+- Part of speech
+- Pronunciation
+- Example sentence
+- Example translation
+- Learning progress
+
+Do NOT use temporary mock data for the newly created Sets.
+
+==================================================
+PART 8 — MY SETS
+==================================================
+
+After creating a Set, it must appear in:
+
+"مجموعاتي"
+
+Each Set should display:
+
+- Set name
+- Number of words
+- Progress
+- Number of items due for review
+
+The user must be able to open a Set and see its words.
+
+Do not add unnecessary sections such as "Recent sets".
+
+==================================================
+PART 9 — WORD ORGANIZATION
+==================================================
+
+Inside a Set, the application should eventually be able to organize/filter words by grammatical category.
+
+For example:
+
+الأفعال
+- speak
+- travel
+- arrive
+
+الأسماء
+- hotel
+- city
+
+الصفات
+- beautiful
+- difficult
+
+الظروف
+- quickly
+
+حروف الجر
+- in
+- on
+- at
+
+This organization must use the AI-generated part-of-speech data.
+
+Do not manually hardcode categories for individual words.
+
+==================================================
+PART 10 — DO NOT CHANGE THESE DESIGN DECISIONS
+==================================================
+
+Keep the existing bottom navigation:
+
+الرئيسية
+مجموعاتي
+إضافة
+المراجعة
+الملف الشخصي
+
+Remove/keep removed the previously identified unnecessary UI:
+
+REMOVE:
+
+- Recent sets
+- What's waiting
+- Practice ledger
+- Achievements
+- Overall Progress
+
+Do not use fake values such as:
+
+"12 days"
+"48%"
+"3 words available"
+
+unless they are calculated from real user data.
+
+Do not use fake dates such as:
+
+"Tuesday, October 15"
+
+The application must use real data.
+
+==================================================
+PART 11 — TEST THE COMPLETE FLOW
+==================================================
+
+Test this exact flow:
+
+1. Open the application.
+2. Confirm the user has a native language and target language.
+3. Go to "إضافة".
+4. Enter:
+
+Sorry
+Speak
+Beautiful
+Quickly
+
+5. Confirm:
+
+"تم إضافة 4"
+
+6. Confirm:
+
+"إنشاء المجموعة"
+
+is enabled.
+
+7. Press the button.
+8. Show a loading state.
+9. Send the words to the AI.
+10. Receive structured information.
+11. Save the Set and processed words.
+12. Open "مجموعاتي".
+13. Confirm the Set exists.
+14. Open the Set.
+15. Confirm each word has:
+    - translation
+    - part of speech
+    - pronunciation
+    - example sentence
+    - sentence translation
+
+16. Refresh the application.
+17. Confirm the Set still exists.
+
+==================================================
+PART 12 — IMPORTANT DEVELOPMENT RULE
+==================================================
+
+Do not only make the UI look functional.
+
+The following must be REAL:
+
+- word creation
+- Set creation
+- persistence
+- AI processing
+- translation
+- classification
+- word retrieval
+- Set retrieval
+
+Use real application state and persistent storage.
+
+If an AI/API key is required, connect the existing AI integration properly rather than creating fake responses.
+
+Before finishing, test the complete flow and fix any errors you encounter.
+
+Do not modify unrelated features.

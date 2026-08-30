@@ -37,6 +37,8 @@ paths:
       operationId: getDashboard
       tags: [dashboard]
       summary: Get the home dashboard
+      parameters:
+        - $ref: "#/components/parameters/LocalDate"
       responses:
         "200":
           description: Dashboard summary
@@ -48,10 +50,29 @@ paths:
     get:
       operationId: getProfile
       tags: [dashboard]
-      summary: Get learning profile statistics
+      summary: Get learning profile and preferences
+      parameters:
+        - $ref: "#/components/parameters/LocalDate"
       responses:
         "200":
           description: Profile summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+    patch:
+      operationId: updateProfile
+      tags: [dashboard]
+      summary: Save onboarding or learning preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdate"
+      responses:
+        "200":
+          description: Updated profile
           content:
             application/json:
               schema:
@@ -197,6 +218,13 @@ components:
       schema:
         type: integer
         minimum: 1
+    LocalDate:
+      name: date
+      in: query
+      required: false
+      schema:
+        type: string
+        pattern: "^\\d{4}-\\d{2}-\\d{2}$"
   schemas:
     HealthStatus:
       type: object
@@ -213,14 +241,16 @@ components:
       enum: [recognition, listening, reading, writing, speaking, recall, sentence_usage, tense_form]
     Word:
       type: object
-      required: [id, setId, text, meaning, pronunciation, sentence, mastery, status, writing, speaking, recall]
+      required: [id, setId, text, meaning, translation, pronunciation, sentence, sentenceTranslation, mastery, status, writing, speaking, recall]
       properties:
         id: { type: integer }
         setId: { type: integer }
         text: { type: string }
         meaning: { type: string }
+        translation: { type: string }
         pronunciation: { type: string }
         sentence: { type: string }
+        sentenceTranslation: { type: string }
         mastery: { type: integer, minimum: 0, maximum: 100 }
         status: { $ref: "#/components/schemas/WordStatus" }
         writing: { type: integer, minimum: 0, maximum: 100 }
@@ -232,7 +262,7 @@ components:
         nextReview: { type: ["string", "null"], format: date-time }
     WordSetSummary:
       type: object
-      required: [id, name, wordCount, mastery, dueCount, lastPracticed]
+      required: [id, name, wordCount, mastery, dueCount, lastPracticed, nativeLanguage, targetLanguage]
       properties:
         id: { type: integer }
         name: { type: string }
@@ -240,6 +270,8 @@ components:
         mastery: { type: integer, minimum: 0, maximum: 100 }
         dueCount: { type: integer, minimum: 0 }
         lastPracticed: { type: ["string", "null"], format: date-time }
+        nativeLanguage: { type: string }
+        targetLanguage: { type: string }
     WordSet:
       allOf:
         - $ref: "#/components/schemas/WordSetSummary"
@@ -252,9 +284,11 @@ components:
                 $ref: "#/components/schemas/Word"
     WordSetInput:
       type: object
-      required: [name, words]
+      required: [name, nativeLanguage, targetLanguage, words]
       properties:
         name: { type: string, minLength: 1, maxLength: 80 }
+        nativeLanguage: { type: string, minLength: 1, maxLength: 80 }
+        targetLanguage: { type: string, minLength: 1, maxLength: 80 }
         words:
           type: array
           minItems: 4
@@ -273,6 +307,8 @@ components:
         skill: { $ref: "#/components/schemas/Skill" }
         correct: { type: boolean }
         answer: { type: ["string", "null"] }
+        durationSeconds: { type: integer, minimum: 0 }
+        activityDate: { type: ["string", "null"], pattern: "^\\d{4}-\\d{2}-\\d{2}$" }
     PracticeAttempt:
       type: object
       required: [id, wordId, skill, correct, createdAt, mastery]
@@ -285,53 +321,41 @@ components:
         mastery: { type: integer, minimum: 0, maximum: 100 }
     Dashboard:
       type: object
-      required: [greeting, minutesLearned, dailyGoal, streak, reviewItems, reviewBreakdown, continueSet, recentSets]
+      required: [greeting, minutesLearned, dailyGoal, streak, reviewItems, continueSet]
       properties:
         greeting: { type: string }
         minutesLearned: { type: integer, minimum: 0 }
         dailyGoal: { type: integer, minimum: 1 }
         streak: { type: integer, minimum: 0 }
         reviewItems: { type: integer, minimum: 0 }
-        reviewBreakdown:
-          type: object
-          required: [words, sentences, writing, speaking]
-          properties:
-            words: { type: integer, minimum: 0 }
-            sentences: { type: integer, minimum: 0 }
-            writing: { type: integer, minimum: 0 }
-            speaking: { type: integer, minimum: 0 }
         continueSet:
           oneOf:
             - $ref: "#/components/schemas/WordSetSummary"
             - type: "null"
-        recentSets:
-          type: array
-          items:
-            $ref: "#/components/schemas/WordSetSummary"
     Review:
       type: object
-      required: [total, words, sentences, writing, speaking, recall, forms]
+      required: [total, hasPracticeHistory, dueSetId]
       properties:
         total: { type: integer, minimum: 0 }
-        words: { type: integer, minimum: 0 }
-        sentences: { type: integer, minimum: 0 }
-        writing: { type: integer, minimum: 0 }
-        speaking: { type: integer, minimum: 0 }
-        recall: { type: integer, minimum: 0 }
-        forms: { type: integer, minimum: 0 }
+        hasPracticeHistory: { type: boolean }
+        dueSetId: { type: ["integer", "null"] }
     Profile:
       type: object
-      required: [overallProgress, wordsLearned, sentencesPracticed, speakingPractice, writingPractice, currentStreak, longestStreak, dailyGoal, achievements]
+      required: [userName, nativeLanguage, targetLanguage, dailyGoal, onboardingComplete, currentStreak, hasPracticeHistory]
       properties:
-        overallProgress: { type: integer, minimum: 0, maximum: 100 }
-        wordsLearned: { type: integer, minimum: 0 }
-        sentencesPracticed: { type: integer, minimum: 0 }
-        speakingPractice: { type: integer, minimum: 0 }
-        writingPractice: { type: integer, minimum: 0 }
-        currentStreak: { type: integer, minimum: 0 }
-        longestStreak: { type: integer, minimum: 0 }
+        userName: { type: string }
+        nativeLanguage: { type: string }
+        targetLanguage: { type: string }
         dailyGoal: { type: integer, minimum: 1 }
-        achievements:
-          type: array
-          items: { type: string }
+        onboardingComplete: { type: boolean }
+        currentStreak: { type: integer, minimum: 0 }
+        hasPracticeHistory: { type: boolean }
+    ProfileUpdate:
+      type: object
+      properties:
+        nativeLanguage: { type: string, minLength: 1, maxLength: 80 }
+        targetLanguage: { type: string, minLength: 1, maxLength: 80 }
+        dailyGoal: { type: integer, minimum: 5, maximum: 60 }
+        onboardingComplete: { type: boolean }
+        userName: { type: string, minLength: 1, maxLength: 80 }
 

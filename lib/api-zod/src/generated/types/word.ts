@@ -12,8 +12,10 @@ export interface Word {
   setId: number;
   text: string;
   meaning: string;
+  translation: string;
   pronunciation: string;
   sentence: string;
+  sentenceTranslation: string;
   /**
      * @minimum 0
      * @maximum 100

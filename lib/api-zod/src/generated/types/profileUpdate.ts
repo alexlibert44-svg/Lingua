@@ -6,27 +6,26 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface WordSetInput {
+export interface ProfileUpdate {
   /**
      * @minLength 1
      * @maxLength 80
      */
-  name: string;
+  nativeLanguage?: string;
   /**
      * @minLength 1
      * @maxLength 80
      */
-  nativeLanguage: string;
+  targetLanguage?: string;
+  /**
+     * @minimum 5
+     * @maximum 60
+     */
+  dailyGoal?: number;
+  onboardingComplete?: boolean;
   /**
      * @minLength 1
      * @maxLength 80
      */
-  targetLanguage: string;
-  /**
-     * @minItems 4
-     * @maxItems 50
-     * @items.minLength 1
-     * @items.maxLength 80
-     */
-  words: string[];
+  userName?: string;
 }

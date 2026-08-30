@@ -39,8 +39,10 @@ export interface Word {
   setId: number;
   text: string;
   meaning: string;
+  translation: string;
   pronunciation: string;
   sentence: string;
+  sentenceTranslation: string;
   /**
      * @minimum 0
      * @maximum 100
@@ -85,6 +87,8 @@ export interface WordSetSummary {
   dueCount: number;
   /** @nullable */
   lastPracticed: string | null;
+  nativeLanguage: string;
+  targetLanguage: string;
 }
 
 export type WordSet = WordSetSummary & {
@@ -97,6 +101,16 @@ export interface WordSetInput {
      * @maxLength 80
      */
   name: string;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  nativeLanguage: string;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  targetLanguage: string;
   /**
      * @minItems 4
      * @maxItems 50
@@ -121,6 +135,13 @@ export interface PracticeAttemptInput {
   correct: boolean;
   /** @nullable */
   answer?: string | null;
+  /** @minimum 0 */
+  durationSeconds?: number;
+  /**
+     * @nullable
+     * @pattern ^\d{4}-\d{2}-\d{2}$
+     */
+  activityDate?: string | null;
 }
 
 export interface PracticeAttempt {
@@ -136,17 +157,6 @@ export interface PracticeAttempt {
   mastery: number;
 }
 
-export type DashboardReviewBreakdown = {
-  /** @minimum 0 */
-  words: number;
-  /** @minimum 0 */
-  sentences: number;
-  /** @minimum 0 */
-  writing: number;
-  /** @minimum 0 */
-  speaking: number;
-};
-
 export interface Dashboard {
   greeting: string;
   /** @minimum 0 */
@@ -157,48 +167,66 @@ export interface Dashboard {
   streak: number;
   /** @minimum 0 */
   reviewItems: number;
-  reviewBreakdown: DashboardReviewBreakdown;
   continueSet: WordSetSummary | null;
-  recentSets: WordSetSummary[];
 }
 
 export interface Review {
   /** @minimum 0 */
   total: number;
-  /** @minimum 0 */
-  words: number;
-  /** @minimum 0 */
-  sentences: number;
-  /** @minimum 0 */
-  writing: number;
-  /** @minimum 0 */
-  speaking: number;
-  /** @minimum 0 */
-  recall: number;
-  /** @minimum 0 */
-  forms: number;
+  hasPracticeHistory: boolean;
+  /** @nullable */
+  dueSetId: number | null;
 }
 
 export interface Profile {
-  /**
-     * @minimum 0
-     * @maximum 100
-     */
-  overallProgress: number;
-  /** @minimum 0 */
-  wordsLearned: number;
-  /** @minimum 0 */
-  sentencesPracticed: number;
-  /** @minimum 0 */
-  speakingPractice: number;
-  /** @minimum 0 */
-  writingPractice: number;
-  /** @minimum 0 */
-  currentStreak: number;
-  /** @minimum 0 */
-  longestStreak: number;
+  userName: string;
+  nativeLanguage: string;
+  targetLanguage: string;
   /** @minimum 1 */
   dailyGoal: number;
-  achievements: string[];
+  onboardingComplete: boolean;
+  /** @minimum 0 */
+  currentStreak: number;
+  hasPracticeHistory: boolean;
 }
+
+export interface ProfileUpdate {
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  nativeLanguage?: string;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  targetLanguage?: string;
+  /**
+     * @minimum 5
+     * @maximum 60
+     */
+  dailyGoal?: number;
+  onboardingComplete?: boolean;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  userName?: string;
+}
+
+export type LocalDateParameter = string;
+
+export type GetDashboardParams = {
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+date?: LocalDateParameter;
+};
+
+export type GetProfileParams = {
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+date?: LocalDateParameter;
+};
 

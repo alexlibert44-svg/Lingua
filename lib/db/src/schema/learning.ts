@@ -1,6 +1,7 @@
 import { createInsertSchema } from "drizzle-zod";
 import {
   boolean,
+  date,
   integer,
   pgTable,
   serial,
@@ -12,10 +13,14 @@ import { z } from "zod/v4";
 export const profilesTable = pgTable("profiles", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull().unique(),
+  userName: text("user_name").notNull().default("Learner"),
+  nativeLanguage: text("native_language").notNull().default(""),
+  targetLanguage: text("target_language").notNull().default(""),
   dailyGoal: integer("daily_goal").notNull().default(15),
-  currentStreak: integer("current_streak").notNull().default(4),
-  longestStreak: integer("longest_streak").notNull().default(12),
-  minutesLearned: integer("minutes_learned").notNull().default(8),
+  onboardingComplete: boolean("onboarding_complete").notNull().default(false),
+  currentStreak: integer("current_streak"),
+  longestStreak: integer("longest_streak"),
+  minutesLearned: integer("minutes_learned"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -24,6 +29,8 @@ export const wordSetsTable = pgTable("word_sets", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull().default("demo-user"),
   name: text("name").notNull(),
+  nativeLanguage: text("native_language").notNull().default(""),
+  targetLanguage: text("target_language").notNull().default(""),
   lastPracticed: timestamp("last_practiced", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -34,9 +41,11 @@ export const wordsTable = pgTable("words", {
   setId: integer("set_id").notNull().references(() => wordSetsTable.id, { onDelete: "cascade" }),
   text: text("text").notNull(),
   meaning: text("meaning").notNull().default("A useful word to practice in context"),
+  translation: text("translation").notNull().default(""),
   pronunciation: text("pronunciation").notNull().default("/practice/"),
   sentence: text("sentence").notNull(),
-  mastery: integer("mastery").notNull().default(18),
+  sentenceTranslation: text("sentence_translation").notNull().default(""),
+  mastery: integer("mastery").notNull().default(0),
   status: text("status").notNull().default("New"),
   writing: integer("writing").notNull().default(0),
   speaking: integer("speaking").notNull().default(0),
@@ -44,7 +53,7 @@ export const wordsTable = pgTable("words", {
   attempts: integer("attempts").notNull().default(0),
   mistakes: integer("mistakes").notNull().default(0),
   lastReviewed: timestamp("last_reviewed", { withTimezone: true }),
-  nextReview: timestamp("next_review", { withTimezone: true }).notNull().defaultNow(),
+  nextReview: timestamp("next_review", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -84,6 +93,8 @@ export const practiceAttemptsTable = pgTable("practice_attempts", {
   skill: text("skill").notNull(),
   correct: boolean("correct").notNull(),
   answer: text("answer"),
+  durationSeconds: integer("duration_seconds").notNull().default(0),
+  activityDate: date("activity_date", { mode: "string" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

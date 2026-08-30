@@ -1,0 +1,1527 @@
+LingoFlow — FINAL MVP CORRECTION & LOCALIZATION PROMPT
+
+IMPORTANT:
+DO NOT REBUILD THE APPLICATION FROM SCRATCH.
+
+The current LingoFlow application already has a visual design, navigation, screens, and some functionality.
+
+Your task is to MODIFY, CLEAN UP, and CORRECT the existing application.
+
+Preserve working functionality and the current visual identity.
+
+Do not create a new unrelated design.
+
+Do not add fake data.
+
+Do not use hard-coded statistics.
+
+Do not use hard-coded dates.
+
+Do not assume English is the user's interface language.
+
+The application must become a real multilingual language-learning MVP.
+
+============================================================
+1. CORE PRODUCT CONCEPT
+============================================================
+
+LingoFlow is a language-learning application based on learning WORDS THROUGH SENTENCES and active practice.
+
+The user chooses:
+
+1. Native language
+2. Target language
+3. Daily learning goal
+
+Then the user creates personal Word Sets containing at least 4 words.
+
+Example:
+
+Set name:
+Travel
+
+Words:
+
+hotel
+reservation
+passport
+luggage
+
+The application stores these words and later uses them to create learning activities based on:
+
+- Meaning
+- Translation
+- Listening
+- Reading
+- Writing
+- Speaking
+- Sentence recall
+- Sentence usage
+- Context variations
+- Word forms
+- Relevant tenses
+- Spaced repetition
+
+The goal is NOT to memorize isolated words.
+
+The user must learn how to USE the words inside complete sentences.
+
+============================================================
+2. CRITICAL LANGUAGE SYSTEM
+============================================================
+
+This is one of the most important requirements.
+
+The application MUST distinguish between:
+
+NATIVE LANGUAGE
+TARGET LANGUAGE
+UI LANGUAGE
+
+For the initial MVP:
+
+UI Language = Native Language
+
+Example:
+
+Native language = Arabic
+Target language = English
+
+Therefore:
+
+Application interface = Arabic
+Learning content = English
+Translations/explanations = Arabic
+
+Another example:
+
+Native language = French
+Target language = English
+
+Therefore:
+
+Application interface = French
+Learning content = English
+Translations/explanations = French
+
+Another example:
+
+Native language = Spanish
+Target language = German
+
+Therefore:
+
+Application interface = Spanish
+Learning content = German
+Translations/explanations = Spanish
+
+DO NOT hard-code English as the application language.
+
+DO NOT assume the user understands English.
+
+DO NOT show English UI labels to a user whose native language is Arabic unless English is specifically the target learning language.
+
+============================================================
+3. FIRST-LAUNCH ONBOARDING
+============================================================
+
+A completely new user MUST NOT enter the Home screen immediately.
+
+Show an onboarding flow first.
+
+------------------------------------------------------------
+SCREEN 1 — NATIVE LANGUAGE
+------------------------------------------------------------
+
+Title:
+
+"What's your native language?"
+
+IMPORTANT:
+This question itself must be localized appropriately once the application supports the user's initial language selection.
+
+For the very first language-selection screen, use a neutral/simple language-selection experience that is understandable to the user.
+
+Show a searchable language selector.
+
+Include common languages such as:
+
+Arabic
+English
+French
+Spanish
+German
+Portuguese
+Italian
+Turkish
+Japanese
+Korean
+Chinese
+Russian
+and other supported languages.
+
+The user must select exactly one native language.
+
+Button:
+
+Continue
+
+Do not continue without a selection.
+
+------------------------------------------------------------
+SCREEN 2 — TARGET LANGUAGE
+------------------------------------------------------------
+
+Title:
+
+"What language do you want to learn?"
+
+Show the same searchable language selector.
+
+The target language must be different from the native language.
+
+Save:
+
+nativeLanguage
+targetLanguage
+
+------------------------------------------------------------
+SCREEN 3 — DAILY GOAL
+------------------------------------------------------------
+
+Title:
+
+"How much do you want to learn each day?"
+
+Options:
+
+5 minutes
+10 minutes
+15 minutes
+20 minutes
+30 minutes
+
+Default:
+
+15 minutes
+
+Save:
+
+dailyGoal
+
+Button:
+
+Start Learning
+
+------------------------------------------------------------
+ONBOARDING COMPLETION
+------------------------------------------------------------
+
+After the user completes onboarding:
+
+Save all preferences to persistent storage/database.
+
+Store:
+
+nativeLanguage
+targetLanguage
+dailyGoal
+onboardingCompleted
+
+On subsequent launches:
+
+If onboardingCompleted = true:
+
+Open Home directly.
+
+Do NOT show onboarding again.
+
+Allow the user to change these settings later from Profile.
+
+============================================================
+4. FULL UI LOCALIZATION
+============================================================
+
+The selected native language must control the entire application interface.
+
+This means localization must cover:
+
+- Navigation labels
+- Buttons
+- Headings
+- Instructions
+- Empty states
+- Error messages
+- Success messages
+- Review messages
+- Settings
+- Profile
+- Onboarding
+- Learning instructions
+- Practice instructions
+- Writing instructions
+- Speaking instructions
+- Progress messages
+- Notifications/messages shown inside the app
+
+DO NOT leave random English labels in the UI.
+
+DO NOT create a mixture such as:
+
+Home
+مجموعاتي
+Review
+الملف الشخصي
+
+if the user's native language is Arabic.
+
+Everything should be consistently localized.
+
+============================================================
+5. ARABIC SUPPORT
+============================================================
+
+When the native language is Arabic:
+
+The interface must be Arabic.
+
+Use proper Arabic localization.
+
+Enable RTL layout.
+
+Text alignment should automatically become appropriate for Arabic.
+
+Navigation should support RTL.
+
+Buttons, cards, icons, spacing, and directional arrows should adapt appropriately.
+
+Example Arabic interface:
+
+الرئيسية
+مجموعاتي
+إضافة
+المراجعة
+الملف الشخصي
+
+Examples:
+
+"Practice" → "تدرّب"
+
+"Start Review" → "ابدأ المراجعة"
+
+"Create Word Set" → "إنشاء مجموعة كلمات"
+
+"Check" → "تحقق"
+
+"Try Again" → "حاول مرة أخرى"
+
+"Continue" → "متابعة"
+
+"Listen" → "استمع"
+
+"Speak" → "تحدث"
+
+"Writing" → "الكتابة"
+
+"Speaking" → "النطق"
+
+"Daily Goal" → "الهدف اليومي"
+
+Do not hard-code these translations directly throughout components.
+
+Use a proper localization system.
+
+============================================================
+6. LOCALIZATION ARCHITECTURE
+============================================================
+
+Create a centralized localization/i18n system.
+
+Do NOT write UI strings directly inside individual components.
+
+Use translation keys.
+
+Example concept:
+
+home.greeting
+home.todayProgress
+home.review
+home.continueLearning
+sets.title
+sets.create
+practice.check
+practice.tryAgain
+practice.continue
+profile.settings
+onboarding.nativeLanguage
+onboarding.targetLanguage
+
+Then provide translation dictionaries for supported languages.
+
+At minimum, implement:
+
+Arabic
+English
+French
+Spanish
+
+Structure the application so additional languages can be added later without rewriting components.
+
+============================================================
+7. DYNAMIC TRANSLATION OF LEARNING CONTENT
+============================================================
+
+The target-language learning content must be accompanied by translation in the user's native language.
+
+Example:
+
+Native language:
+Arabic
+
+Target language:
+English
+
+Word:
+
+achieve
+
+Translation:
+
+يحقق / ينجز
+
+Sentence:
+
+I want to achieve my goals.
+
+Translation:
+
+أريد أن أحقق أهدافي.
+
+Another example:
+
+Target language:
+Spanish
+
+Native language:
+Arabic
+
+Word:
+
+viajar
+
+Translation:
+
+يسافر
+
+Sentence:
+
+I want to travel this summer.
+
+Translation:
+
+أريد أن أسافر هذا الصيف.
+
+The translation language must ALWAYS be the user's native language.
+
+Do NOT hard-code Arabic translations.
+
+Do NOT hard-code English translations.
+
+Use the selected nativeLanguage dynamically.
+
+============================================================
+8. TARGET LANGUAGE MUST CONTROL LEARNING CONTENT
+============================================================
+
+If the user selects:
+
+Native = Arabic
+Target = English
+
+The user's entered learning words are expected to be English.
+
+If:
+
+Native = Arabic
+Target = Spanish
+
+The words are Spanish.
+
+If:
+
+Native = French
+Target = German
+
+The words are German.
+
+The application must never assume that the target language is English.
+
+All future AI-generated:
+
+- Sentences
+- Translations
+- Explanations
+- Vocabulary examples
+- Listening content
+- Writing exercises
+
+must use the correct language pair.
+
+============================================================
+9. HOME SCREEN — CLEAN AND FOCUSED
+============================================================
+
+Remove completely:
+
+"Recent sets"
+
+Do not show a Recent Sets section on Home.
+
+Remove any duplicated Word Set library from Home.
+
+Home should answer:
+
+"What should I do today?"
+
+Recommended structure:
+
+HEADER
+
+LingoFlow
+
+Dynamic date
+
+Dynamic localized greeting
+
+
+TODAY'S LEARNING
+
+Show the actual daily goal.
+
+Example:
+
+8 / 15 minutes
+
+This must come from real user activity.
+
+Do not show fake numbers.
+
+
+CURRENT LEARNING
+
+If the user has an active Set:
+
+"Continue learning"
+
+[Set name]
+
+[Practice]
+
+If the user has no active Set:
+
+"Create your first Word Set"
+
+[Create Set]
+
+
+TODAY'S REVIEW
+
+Only display actual review information.
+
+If items exist:
+
+"5 items are ready for review."
+
+[Start Review]
+
+If no items exist:
+
+"You're all caught up."
+
+Do NOT display fake review counts.
+
+============================================================
+10. REMOVE "WHAT'S WAITING"
+============================================================
+
+On the Review screen, remove the entire:
+
+"What's waiting"
+
+section.
+
+Remove the large cards:
+
+Words
+Sentences
+Writing
+
+Do not replace them with another large fake dashboard.
+
+The Review screen should focus on the actual review experience.
+
+If real review items exist:
+
+"Ready for review"
+
+"X items are ready."
+
+[Start Review]
+
+If there are none:
+
+"You're all caught up."
+
+============================================================
+11. MY SETS SCREEN
+============================================================
+
+"My Sets" is the main library for user-created Word Sets.
+
+Title:
+
+"My Word Sets"
+
+Primary action:
+
+"+ Create New Set"
+
+Each Set card should show real data:
+
+Set name
+Number of words
+Mastery
+Reviews due
+Progress
+
+Example:
+
+Personal Growth
+
+5 words
+3 reviews due
+
+[Practice]
+
+The progress percentage must come from real learning activity.
+
+If progress has not been implemented for a particular Set:
+
+Do not invent a percentage.
+
+Show an appropriate state such as:
+
+"Not started"
+
+============================================================
+12. CREATE WORD SET
+============================================================
+
+The user must be able to create a Word Set.
+
+Screen:
+
+Create a New Word Set
+
+Field:
+
+Set name
+
+Then:
+
+Add your words
+
+Minimum:
+
+4 words
+
+Example:
+
+travel
+journey
+passport
+luggage
+
+Display:
+
+4 / 4 minimum
+
+The user can:
+
+Add word
+Remove word
+Edit word
+
+Button:
+
+Create Set
+
+Do not allow a Set with fewer than 4 words.
+
+Save the Set to persistent storage/database.
+
+============================================================
+13. WORD SET OWNERSHIP
+============================================================
+
+A Word Set belongs to the user.
+
+A Word belongs to a Word Set.
+
+Do NOT automatically move the user's words into unrelated categories.
+
+The user's Set is the primary container.
+
+Optional AI-generated metadata/categories can exist later, but must not replace the user's Set structure.
+
+============================================================
+14. WORD DETAIL
+============================================================
+
+When opening a word:
+
+Show:
+
+Target-language word
+
+Native-language translation
+
+Pronunciation
+
+Example sentence in target language
+
+Translation of sentence in native language
+
+Example:
+
+achieve
+
+يحقق / ينجز
+
+I want to achieve my goals.
+
+أريد أن أحقق أهدافي.
+
+Practice
+
+[Practice Word]
+
+The target language should be visually prominent.
+
+The native-language translation should clearly support comprehension.
+
+============================================================
+15. LEARNING PHILOSOPHY
+============================================================
+
+The application must teach the WORD THROUGH THE SENTENCE.
+
+Do not make the main experience simple flashcards.
+
+Learning progression:
+
+WORD
+↓
+MEANING
+↓
+PRONUNCIATION
+↓
+SENTENCE
+↓
+LISTENING
+↓
+READING
+↓
+WRITING
+↓
+SPEAKING
+↓
+ACTIVE RECALL
+↓
+CONTEXT VARIATIONS
+↓
+WORD FORMS / TENSES WHEN RELEVANT
+↓
+SPACED REPETITION
+
+============================================================
+16. WRITING PRACTICE
+============================================================
+
+Example:
+
+Target sentence:
+
+I want to achieve my goals.
+
+The user may see:
+
+"I want to _____ my goals."
+
+The user enters:
+
+achieve
+
+Press:
+
+Check
+
+If correct:
+
+Show a positive result.
+
+Allow:
+
+Continue
+
+If incorrect:
+
+Do NOT automatically continue.
+
+Show:
+
+Try again
+
+The user must retry until the required answer is correct.
+
+Record the mistake.
+
+The system must remember that the user had difficulty with this item.
+
+Do not use fake scoring.
+
+============================================================
+17. SPEAKING PRACTICE
+============================================================
+
+Show:
+
+Say the sentence
+
+Target sentence:
+
+I want to achieve my goals.
+
+Provide:
+
+Listen
+
+Microphone:
+
+Hold to Speak
+
+Allow the user to record their voice.
+
+The system should eventually evaluate pronunciation using speech recognition/pronunciation analysis.
+
+For the MVP, if real pronunciation analysis is not yet connected:
+
+Do NOT pretend that a real pronunciation score exists.
+
+Instead show an honest state such as:
+
+"Recording saved"
+
+and store the attempt for future analysis.
+
+Do not display fake scores like:
+
+92% pronunciation
+
+unless a real pronunciation engine produced that score.
+
+============================================================
+18. SENTENCE RECALL
+============================================================
+
+After practice, reduce assistance.
+
+Example:
+
+Native-language meaning:
+
+"أريد أن أحقق أهدافي."
+
+Ask the user to produce the target sentence.
+
+Allow:
+
+Writing
+Speaking
+
+The goal is active recall, not recognition.
+
+============================================================
+19. SENTENCE VARIATIONS
+============================================================
+
+The same word should eventually appear in multiple natural sentences.
+
+Example:
+
+I want to achieve my goals.
+
+She achieved her goal.
+
+They worked hard to achieve success.
+
+This prevents memorizing only one fixed sentence.
+
+Store multiple sentences per Word.
+
+============================================================
+20. TENSES AND WORD FORMS
+============================================================
+
+Do not teach all tenses at once.
+
+Introduce relevant forms gradually.
+
+Example:
+
+go
+
+Present:
+
+I go to work every day.
+
+Past:
+
+I went to work yesterday.
+
+Future:
+
+I will go tomorrow.
+
+Present continuous:
+
+I am going home.
+
+Present perfect:
+
+I have gone there before.
+
+Do not force tense variations for words where tense is not relevant.
+
+Track forms separately.
+
+Example:
+
+go
+Present = strong
+Past = weak
+Future = strong
+
+If the user repeatedly makes mistakes with the Past form:
+
+Prioritize that form during future review.
+
+============================================================
+21. SPACED REPETITION
+============================================================
+
+Prepare the architecture for real spaced repetition.
+
+Each learning item should store:
+
+itemId
+wordId
+sentenceId
+skill
+form/tense
+lastReviewed
+nextReview
+attempts
+mistakes
+mastery
+difficulty
+
+Skills:
+
+Recognition
+Listening
+Reading
+Writing
+Speaking
+Recall
+Sentence Usage
+Tense/Form
+
+The review scheduler must eventually prioritize items based on actual performance.
+
+Do not use random fake review intervals.
+
+Do not display review counts unless the scheduler has real data.
+
+============================================================
+22. MASTERY
+============================================================
+
+Use mastery states:
+
+New
+Learning
+Familiar
+Strong
+Mastered
+
+Mastery should be based on repeated successful performance over time.
+
+One correct answer must NOT automatically mean "Mastered".
+
+============================================================
+23. PROFILE — SIMPLIFY
+============================================================
+
+REMOVE:
+
+Practice ledger
+Words learned statistics
+Sentences practiced statistics
+Speaking practice statistics
+Writing practice statistics
+Achievements
+Overall Progress
+Fake 12-day streak
+Fake progress cards
+
+Do not create another statistics dashboard.
+
+Profile should contain:
+
+User profile
+
+Learning language
+
+Native language
+
+Daily goal
+
+Settings
+
+Audio
+Notifications
+Appearance
+
+Change native language
+Change learning language
+Change daily goal
+
+Account
+
+Sign out
+
+A streak can be displayed ONLY if calculated from real practice history.
+
+============================================================
+24. REMOVE "OVERALL PROGRESS"
+============================================================
+
+Do NOT display:
+
+OVERALL PROGRESS
+48%
+
+or any similar generic percentage.
+
+LingoFlow has multiple learning dimensions:
+
+Vocabulary
+Sentence mastery
+Writing
+Speaking
+Listening
+Recall
+Tense/Form mastery
+
+A single percentage is misleading unless a real and clearly defined calculation is implemented.
+
+For the current MVP:
+
+REMOVE IT.
+
+============================================================
+25. REMOVE ALL FAKE DATA
+============================================================
+
+Search the entire project for hard-coded demo values.
+
+Examples:
+
+48%
+72%
+21%
+12 days
+8 items
+19 speaking practice
+10 sentences
+3 words learned
+October 15
+
+These must NOT appear as user statistics unless they are generated from real stored data.
+
+Every number shown must have a real source.
+
+Examples:
+
+"5 words"
+
+→ actual saved words.
+
+"3 reviews due"
+
+→ actual review scheduler.
+
+"15 minutes"
+
+→ user's selected daily goal.
+
+"8 / 15 minutes"
+
+→ actual recorded learning activity.
+
+"12 day streak"
+
+→ actual consecutive practice history.
+
+If real data is unavailable:
+
+Hide the metric or show an honest empty state.
+
+============================================================
+26. DYNAMIC DATE
+============================================================
+
+The current date must NEVER be hard-coded.
+
+Use the device/browser local date.
+
+Localize the date according to the user's interface language.
+
+For Arabic:
+
+Use an appropriate Arabic date format.
+
+For French:
+
+Use French.
+
+For English:
+
+Use English.
+
+The date should automatically change each day.
+
+============================================================
+27. DYNAMIC GREETING
+============================================================
+
+Greeting must depend on actual local time.
+
+Morning:
+
+Good morning
+
+Afternoon:
+
+Good afternoon
+
+Evening:
+
+Good evening
+
+Night:
+
+Good night
+
+These strings must be localized according to the user's native/UI language.
+
+============================================================
+28. DAILY GOAL
+============================================================
+
+Track actual learning activity.
+
+If user selected:
+
+15 minutes
+
+and practiced for 6 real minutes:
+
+Display:
+
+6 / 15 minutes
+
+Do not display 8 / 15 unless 8 minutes were actually completed.
+
+Daily progress resets according to the user's local date.
+
+============================================================
+29. EMPTY STATES
+============================================================
+
+New user with no Sets:
+
+"No word sets yet."
+
+"Add at least 4 words to create your first set."
+
+Button:
+
+"Create Word Set"
+
+No reviews:
+
+"You're all caught up."
+
+No practice history:
+
+"Your learning journey starts here."
+
+Do not fill empty states with fake statistics.
+
+============================================================
+30. DATA MODEL
+============================================================
+
+Prepare clean persistent data structures for:
+
+User
+UserPreferences
+WordSet
+Word
+Sentence
+LearningItem
+PracticeAttempt
+Mastery
+Review
+WordForm
+DailyActivity
+
+User:
+
+id
+name
+nativeLanguage
+targetLanguage
+dailyGoal
+onboardingCompleted
+
+WordSet:
+
+id
+userId
+name
+createdAt
+
+Word:
+
+id
+setId
+text
+translation
+pronunciation
+
+Sentence:
+
+id
+wordId
+targetText
+nativeTranslation
+
+LearningItem:
+
+id
+wordId
+sentenceId
+skill
+form
+mastery
+difficulty
+attempts
+mistakes
+lastReviewed
+nextReview
+
+DailyActivity:
+
+date
+practiceSeconds
+itemsCompleted
+
+============================================================
+31. LANGUAGE SWITCHING
+============================================================
+
+Profile must allow:
+
+Change Native Language
+
+Change Learning Language
+
+If the user changes their native language:
+
+The entire UI should update to the new interface language.
+
+Translations for learning content must also update to the new native language.
+
+If the user changes the target language:
+
+Future learning content must use the new target language.
+
+Existing Word Sets should not be silently corrupted.
+
+Ask the user for confirmation before making changes that could invalidate existing learning content.
+
+============================================================
+32. AI CONTENT GENERATION — ARCHITECTURE READY
+============================================================
+
+The application should be architected so an AI service can later generate:
+
+Translations
+Natural sentences
+Sentence variations
+Context examples
+Relevant word forms
+Tense examples
+Writing exercises
+Listening content
+Learning explanations
+
+The AI request must always receive:
+
+nativeLanguage
+targetLanguage
+word
+context
+user level
+learning objective
+
+Example:
+
+nativeLanguage = Arabic
+targetLanguage = English
+word = achieve
+
+The generated result must contain:
+
+Target word
+Native translation
+Target sentence
+Native translation of sentence
+Pronunciation if available
+Relevant forms if applicable
+
+Do not hard-code English-only AI prompts.
+
+============================================================
+33. NAVIGATION
+============================================================
+
+Keep exactly five bottom navigation tabs:
+
+Home
+My Sets
+Add
+Review
+Profile
+
+All labels must be localized.
+
+Do not add extra tabs.
+
+============================================================
+34. DESIGN
+============================================================
+
+Preserve the current LingoFlow visual identity:
+
+- Warm off-white background
+- Dark green typography
+- Teal/green primary color
+- Soft orange accent
+- Rounded cards
+- Elegant serif display typography
+- Clean sans-serif body typography
+
+Keep the interface premium and calm.
+
+Do not copy Duolingo's exact visual identity.
+
+Use the existing design as the foundation.
+
+============================================================
+35. MOST IMPORTANT PRODUCT RULE
+============================================================
+
+Every visible piece of information must have a purpose.
+
+Home:
+"What should I do today?"
+
+My Sets:
+"What am I learning?"
+
+Review:
+"What do I need to practice again?"
+
+Profile:
+"What are my language preferences and settings?"
+
+Do not duplicate information between screens.
+
+Do not add sections simply to make the screen look full.
+
+Less information is better than meaningless information.
+
+============================================================
+36. NEW USER TEST
+============================================================
+
+Test the application as a completely new user.
+
+Expected flow:
+
+1. Open LingoFlow
+2. Select native language
+3. Select target language
+4. Select daily goal
+5. Complete onboarding
+6. Enter Home
+7. UI appears in the selected native language
+8. Date is dynamic
+9. Greeting is dynamic
+10. No fake statistics
+11. Create a Word Set
+12. Add at least 4 target-language words
+13. Save the Set
+14. Open the Set
+15. Display target words
+16. Display translations in native language
+17. Practice a word
+18. Practice a sentence
+19. Write the answer
+20. Incorrect writing requires retry
+21. Record speaking attempt
+22. Save practice activity
+23. Review becomes available only when real review data exists
+24. Profile displays native language, target language, and daily goal
+25. Restart the application
+26. Onboarding does not appear again
+27. User data remains saved
+
+============================================================
+37. ARABIC TEST
+============================================================
+
+Specifically test this configuration:
+
+Native language:
+Arabic
+
+Target language:
+English
+
+Expected:
+
+Entire UI = Arabic
+
+Learning content = English
+
+Translations = Arabic
+
+Layout = RTL
+
+Example:
+
+الكلمة:
+achieve
+
+الترجمة:
+يحقق / ينجز
+
+الجملة:
+I want to achieve my goals.
+
+الترجمة:
+أريد أن أحقق أهدافي.
+
+Buttons:
+
+تحقق
+حاول مرة أخرى
+متابعة
+استمع
+تحدث
+تدرّب
+
+There must be no unexplained English UI text.
+
+============================================================
+38. SECOND LANGUAGE TEST
+============================================================
+
+Test:
+
+Native language:
+French
+
+Target language:
+Spanish
+
+Expected:
+
+Entire UI = French
+
+Learning content = Spanish
+
+Translations = French
+
+Do not show Arabic or English translations unless selected by the user.
+
+============================================================
+39. FINAL QUALITY CHECK
+============================================================
+
+Before considering this task complete, verify:
+
+[ ] First-launch onboarding exists
+[ ] Native language selection works
+[ ] Target language selection works
+[ ] Daily goal selection works
+[ ] Preferences are saved
+[ ] Onboarding does not repeat
+[ ] UI language follows native language
+[ ] Arabic RTL works
+[ ] Target language controls learning content
+[ ] Translation follows native language
+[ ] No English-only UI assumptions
+[ ] Recent Sets removed from Home
+[ ] What's waiting removed from Review
+[ ] Practice ledger removed from Profile
+[ ] Achievements removed
+[ ] Overall Progress removed
+[ ] Fake streak removed
+[ ] Fake statistics removed
+[ ] Hard-coded dates removed
+[ ] Hard-coded review numbers removed
+[ ] Daily goal uses real activity
+[ ] Review uses real data
+[ ] Word Sets use persistent data
+[ ] Minimum 4 words enforced
+[ ] Writing mistakes require retry
+[ ] Speaking attempts are stored
+[ ] Bottom navigation has exactly 5 tabs
+[ ] Existing functionality is preserved
+[ ] Mobile layout works correctly
+[ ] No overflow
+[ ] No placeholder statistics presented as real user data
+
+FINAL INSTRUCTION:
+
+Do not make the application look artificially complete by inserting fake statistics.
+
+A simple screen with real data is better than a beautiful screen containing invented data.
+
+Build the foundation correctly so we can add the advanced AI learning engine and spaced-repetition system afterward.

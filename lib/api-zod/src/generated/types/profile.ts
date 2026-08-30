@@ -7,24 +7,13 @@
  */
 
 export interface Profile {
-  /**
-     * @minimum 0
-     * @maximum 100
-     */
-  overallProgress: number;
-  /** @minimum 0 */
-  wordsLearned: number;
-  /** @minimum 0 */
-  sentencesPracticed: number;
-  /** @minimum 0 */
-  speakingPractice: number;
-  /** @minimum 0 */
-  writingPractice: number;
-  /** @minimum 0 */
-  currentStreak: number;
-  /** @minimum 0 */
-  longestStreak: number;
+  userName: string;
+  nativeLanguage: string;
+  targetLanguage: string;
   /** @minimum 1 */
   dailyGoal: number;
-  achievements: string[];
+  onboardingComplete: boolean;
+  /** @minimum 0 */
+  currentStreak: number;
+  hasPracticeHistory: boolean;
 }

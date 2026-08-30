@@ -1,0 +1,590 @@
+IMPORTANT — THIS IS A CORRECTION PASS, NOT A NEW APP.
+
+Do NOT rebuild LingoFlow from scratch.
+
+Modify the existing application and preserve the current navigation, visual identity, database structure, and working functionality.
+
+The current implementation contains too much placeholder/demo content.
+
+I want you to remove fake UI data and implement the missing onboarding flow.
+
+==================================================
+1. FIRST LAUNCH ONBOARDING — REQUIRED
+==================================================
+
+LingoFlow MUST ask the user for their language settings before entering the main application.
+
+On the first launch, show an onboarding flow.
+
+Screen 1:
+
+"What's your native language?"
+
+Show a searchable language selector.
+
+Example:
+
+English
+Arabic
+French
+Spanish
+German
+Portuguese
+...
+and other common languages.
+
+The user must select exactly one native language.
+
+Button:
+
+"Continue"
+
+Do not allow continuing without selecting a language.
+
+--------------------------------------------------
+
+Screen 2:
+
+"What language do you want to learn?"
+
+Show the same searchable language selector.
+
+The user must select exactly one target language.
+
+The target language MUST be different from the native language.
+
+Button:
+
+"Continue"
+
+--------------------------------------------------
+
+Screen 3:
+
+"How much do you want to learn each day?"
+
+Allow the user to choose a daily goal.
+
+Example:
+
+5 minutes
+10 minutes
+15 minutes
+20 minutes
+30 minutes
+
+Default:
+
+15 minutes
+
+Button:
+
+"Start Learning"
+
+--------------------------------------------------
+
+IMPORTANT:
+
+Save these preferences to the user's profile/database.
+
+Store:
+
+nativeLanguage
+targetLanguage
+dailyGoal
+
+The onboarding should only appear for a new user who has not completed it.
+
+If the user has already completed onboarding, open the Home screen directly.
+
+Add an option later in Profile → Settings to change these preferences.
+
+==================================================
+2. REMOVE "WHAT'S WAITING"
+==================================================
+
+The current Review screen starts with:
+
+"What's waiting"
+
+followed by large cards:
+
+Words
+Sentences
+Writing
+
+REMOVE THIS ENTIRE "WHAT'S WAITING" SECTION.
+
+Do not replace it with another large statistics section.
+
+The Review screen should be focused on the actual review session.
+
+If there are real items due for review, show:
+
+"Ready for review"
+
+and the actual number.
+
+Example:
+
+"7 items are ready for review."
+
+[Start Review]
+
+If there are no items due:
+
+"You're all caught up."
+
+Do not display fake numbers.
+
+==================================================
+3. REMOVE OVERALL PROGRESS FROM PROFILE
+==================================================
+
+The current Profile screen contains:
+
+"OVERALL PROGRESS"
+"48%"
+"3 words are becoming available to you."
+
+REMOVE THIS ENTIRE SECTION.
+
+There should NOT be a fake or generic "Overall Progress" percentage in Profile.
+
+The application has different learning dimensions:
+
+- vocabulary
+- sentence mastery
+- writing
+- speaking
+- listening
+- recall
+- tense/form mastery
+
+A single generic percentage is misleading.
+
+Do not calculate or display an "Overall Progress" number unless we explicitly implement a scientifically meaningful calculation later.
+
+==================================================
+4. REMOVE FAKE STREAK DATA
+==================================================
+
+The current UI shows:
+
+"Longest streak: 12 days"
+
+This is demo data.
+
+REMOVE all hard-coded streak values.
+
+The streak must be calculated from actual user activity.
+
+If the user has never practiced:
+
+"Start your first practice session."
+
+If the user has practiced for 3 consecutive days:
+
+"3 day streak"
+
+If the user has no streak:
+
+"0 day streak"
+
+NEVER display values such as:
+
+12 days
+7 days
+30 days
+
+unless those values actually exist in the user's stored activity.
+
+The same rule applies to every statistic in the application.
+
+==================================================
+5. REMOVE FAKE OVERALL PROGRESS FROM ANY SCREEN
+==================================================
+
+Search the entire application for hard-coded demo values such as:
+
+48%
+72%
+21%
+12 days
+8 items
+19 speaking practice
+10 sentences
+3 words learned
+
+Do not simply delete the UI.
+
+Determine whether each value is:
+
+A) real data calculated from the user's activity
+
+OR
+
+B) placeholder/demo data.
+
+If it is placeholder/demo data:
+
+REMOVE IT.
+
+If it is intended to be a real metric:
+
+connect it to actual stored data.
+
+There must be NO fake progress numbers presented as if they belong to the user.
+
+==================================================
+6. HOME SCREEN — SIMPLIFY
+==================================================
+
+Remove:
+
+"What's waiting"
+"Recent sets"
+
+The Home screen should NOT be a statistics dashboard.
+
+Its purpose is:
+
+"What should I do today?"
+
+Recommended structure:
+
+HEADER
+
+LingoFlow
+
+Dynamic date
+
+Dynamic greeting
+
+
+TODAY'S LEARNING
+
+Show the actual daily goal.
+
+Example:
+
+8 / 15 minutes
+
+Progress bar.
+
+This must be calculated from real practice time/activity.
+
+
+CURRENT LEARNING
+
+If the user has an active Word Set:
+
+"Continue learning"
+
+[Set name]
+
+[Practice]
+
+If the user has no active Set:
+
+"Create your first Word Set"
+
+[Add words]
+
+
+TODAY'S REVIEW
+
+Only show this if there are real review items.
+
+Example:
+
+"5 items are ready for review."
+
+[Review now]
+
+If none:
+
+"You're all caught up."
+
+
+Do NOT add Recent Sets.
+
+Do NOT add What's waiting.
+
+Do NOT add fake statistics.
+
+==================================================
+7. PROFILE SCREEN — KEEP IT SIMPLE
+==================================================
+
+Profile should NOT be a progress dashboard.
+
+Remove:
+
+Practice ledger
+Words learned statistics
+Sentences practiced statistics
+Speaking practice statistics
+Writing practice statistics
+Achievements
+Overall Progress
+Longest streak card
+Fake motivational statistics
+
+Instead use:
+
+PROFILE
+
+[User name]
+
+Learning
+
+Native language:
+Arabic
+
+Learning:
+English
+
+Daily goal:
+15 minutes
+
+Preferences
+
+Audio
+Notifications
+Appearance
+
+Settings
+
+Change native language
+Change learning language
+Change daily goal
+
+Account
+
+Sign out
+
+A small REAL streak indicator may be displayed if useful, but it must come from actual activity.
+
+==================================================
+8. LANGUAGE CONTEXT MUST BE USED THROUGHOUT THE APP
+==================================================
+
+Once the user selects:
+
+Native language = Arabic
+Target language = English
+
+the learning system must understand:
+
+sourceLanguage = Arabic
+targetLanguage = English
+
+When the user creates a Word Set, the words belong to the target language.
+
+The application should eventually use the native language for:
+
+- translations
+- explanations
+- instructions where appropriate
+
+and the target language for:
+
+- vocabulary
+- sentences
+- pronunciation
+- listening
+- writing
+- speaking
+
+Do not assume English is always the target language.
+
+Do not hard-code English as the learning language.
+
+==================================================
+9. WORD SETS
+==================================================
+
+The user creates their own Word Sets.
+
+Example:
+
+Set name:
+Travel
+
+Words:
+
+hotel
+reservation
+passport
+luggage
+
+The system must save:
+
+Set name
+Native language
+Target language
+Words
+Creation date
+Learning progress
+
+The minimum number of words is 4.
+
+The user should be able to return to the Set later and practice it.
+
+==================================================
+10. REVIEW MUST BE REAL
+==================================================
+
+The Review system must use actual stored learning items.
+
+A review item should have data such as:
+
+itemId
+wordId
+skill
+lastReviewed
+nextReview
+attempts
+mistakes
+mastery
+difficulty
+
+Do not generate fake review counts just to make the interface look populated.
+
+For a new user with no learning history:
+
+Review should show:
+
+"No reviews yet."
+
+For a user who has completed learning activities:
+
+Show the actual due items.
+
+==================================================
+11. DAILY GOAL MUST BE REAL
+==================================================
+
+If the user selects:
+
+15 minutes
+
+the application must track actual learning activity for the current day.
+
+Example:
+
+User practiced for 6 minutes.
+
+Show:
+
+6 / 15 minutes
+
+Not:
+
+8 / 15
+
+unless 8 minutes were actually completed.
+
+Reset the daily progress according to the user's local date.
+
+==================================================
+12. EMPTY STATES
+==================================================
+
+The application must have proper empty states.
+
+New user:
+
+No Word Sets
+
+"No word sets yet."
+
+"Add at least 4 words to create your first set."
+
+Button:
+
+"Create Word Set"
+
+No reviews:
+
+"You're all caught up."
+
+No practice history:
+
+"Your learning journey starts here."
+
+Do not fill empty states with fake numbers.
+
+==================================================
+13. IMPORTANT PRODUCT PRINCIPLE
+
+Every number shown in LingoFlow must have a real source.
+
+For example:
+
+"5 words"
+
+→ comes from actual saved words.
+
+"3 reviews due"
+
+→ comes from actual review scheduling.
+
+"72% mastery"
+
+→ comes from actual mastery calculation.
+
+"12 day streak"
+
+→ comes from actual consecutive practice days.
+
+"15 minutes"
+
+→ comes from the user's selected daily goal.
+
+If a metric is not implemented yet:
+
+DO NOT INVENT A NUMBER.
+
+Either:
+
+- hide the metric
+OR
+- display an appropriate empty state.
+
+==================================================
+14. FINAL QA
+
+After implementing these changes, test the app as a completely NEW USER.
+
+Expected flow:
+
+1. Open app
+2. Select native language
+3. Select target language
+4. Select daily goal
+5. Enter Home
+6. Home contains no fake statistics
+7. Create a Word Set
+8. Add at least 4 target-language words
+9. Save the Set
+10. Open the Set
+11. Practice
+12. Generate actual learning activity/data
+13. Review becomes available only when real review items exist
+14. Profile displays the selected languages and goal
+15. Restart application
+16. Onboarding should NOT appear again
+17. User data should still exist
+
+Also test with a completely fresh account/database.
+
+The application must behave like a real MVP, not a visual demo.
+
+DO NOT add fake numbers to make the interface look complete.
+DO NOT use placeholder statistics.
+DO NOT hard-code dates.
+DO NOT hard-code streaks.
+DO NOT hard-code progress.
+DO NOT hard-code review counts.

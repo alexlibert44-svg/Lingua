@@ -5,7 +5,6 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { DashboardReviewBreakdown } from './dashboardReviewBreakdown';
 import type { WordSetSummary } from './wordSetSummary';
 
 export interface Dashboard {
@@ -18,7 +17,5 @@ export interface Dashboard {
   streak: number;
   /** @minimum 0 */
   reviewItems: number;
-  reviewBreakdown: DashboardReviewBreakdown;
   continueSet: WordSetSummary | null;
-  recentSets: WordSetSummary[];
 }
