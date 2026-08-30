@@ -241,13 +241,21 @@ components:
       enum: [recognition, listening, reading, writing, speaking, recall, sentence_usage, tense_form]
     Word:
       type: object
-      required: [id, setId, text, meaning, translation, pronunciation, sentence, sentenceTranslation, mastery, status, writing, speaking, recall]
+      required: [id, setId, text, meaning, translation, partOfSpeech, alternativePartsOfSpeech, pronunciation, sentence, sentenceTranslation, mastery, status, writing, speaking, recall]
       properties:
         id: { type: integer }
         setId: { type: integer }
         text: { type: string }
         meaning: { type: string }
         translation: { type: string }
+        partOfSpeech:
+          type: string
+          enum: [Noun, Verb, Adjective, Adverb, Pronoun, Preposition, Conjunction, Article / Determiner, Expression, Other]
+        alternativePartsOfSpeech:
+          type: array
+          items:
+            type: string
+            enum: [Noun, Verb, Adjective, Adverb, Pronoun, Preposition, Conjunction, Article / Determiner, Expression, Other]
         pronunciation: { type: string }
         sentence: { type: string }
         sentenceTranslation: { type: string }

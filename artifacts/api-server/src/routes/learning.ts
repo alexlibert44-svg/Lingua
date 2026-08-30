@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { and, desc, eq, lte } from "drizzle-orm";
+import { GoogleGenAI } from "@google/genai";
 import {
   CreatePracticeAttemptBody,
   CreatePracticeAttemptResponse,
@@ -32,124 +33,88 @@ const router: IRouter = Router();
 const DEMO_USER_ID = "demo-user";
 let demoReady = false;
 
-const examples: Record<string, { meaning: string; pronunciation: string; sentence: string }> = {
-  improve: {
-    meaning: "to become better",
-    pronunciation: "/ɪmˈpruːv/",
-    sentence: "I want to improve my English.",
-  },
-  achieve: {
-    meaning: "to successfully reach a goal",
-    pronunciation: "/əˈtʃiːv/",
-    sentence: "Small steps help me achieve my goals.",
-  },
-  effort: {
-    meaning: "the energy used to do something",
-    pronunciation: "/ˈefərt/",
-    sentence: "Every effort makes the next step easier.",
-  },
-  discipline: {
-    meaning: "the habit of doing what needs to be done",
-    pronunciation: "/ˈdɪsəplɪn/",
-    sentence: "Discipline keeps my practice consistent.",
-  },
-  consistent: {
-    meaning: "done in the same reliable way",
-    pronunciation: "/kənˈsɪstənt/",
-    sentence: "Consistent practice creates real progress.",
-  },
-  curious: {
-    meaning: "wanting to learn or know more",
-    pronunciation: "/ˈkjʊəriəs/",
-    sentence: "Stay curious when a new word feels difficult.",
-  },
-  explore: {
-    meaning: "to look around and learn about something",
-    pronunciation: "/ɪkˈsplɔːr/",
-    sentence: "I love to explore new places and ideas.",
-  },
-  prepare: {
-    meaning: "to get ready for something",
-    pronunciation: "/prɪˈpeər/",
-    sentence: "I prepare a little before every lesson.",
-  },
+const supportedPartsOfSpeech = [
+  "Noun", "Verb", "Adjective", "Adverb", "Pronoun", "Preposition",
+  "Conjunction", "Article / Determiner", "Expression", "Other",
+] as const;
+type PartOfSpeech = (typeof supportedPartsOfSpeech)[number];
+
+type ProcessedWord = {
+  word: string;
+  translation: string;
+  partOfSpeech: PartOfSpeech;
+  alternativePartsOfSpeech: string[];
+  pronunciation: string;
+  exampleSentence: string;
+  exampleTranslation: string;
+  meaning: string;
 };
 
-const translations: Record<string, Record<string, { word: string; sentence: string }>> = {
-  en: {
-    improve: { word: "improve", sentence: "I want to improve my English." },
-    achieve: { word: "achieve", sentence: "Small steps help me achieve my goals." },
-    effort: { word: "effort", sentence: "Every effort makes the next step easier." },
-    discipline: { word: "discipline", sentence: "Discipline keeps my practice consistent." },
-    consistent: { word: "consistent", sentence: "Consistent practice creates real progress." },
-    curious: { word: "curious", sentence: "Stay curious when a new word feels difficult." },
-    explore: { word: "explore", sentence: "I love to explore new places and ideas." },
-    prepare: { word: "prepare", sentence: "I prepare a little before every lesson." },
-  },
-  fr: {
-    improve: { word: "s’améliorer", sentence: "Je veux améliorer mon anglais." },
-    achieve: { word: "atteindre / réussir", sentence: "Les petits pas m’aident à atteindre mes objectifs." },
-    effort: { word: "effort", sentence: "Chaque effort rend l’étape suivante plus facile." },
-    discipline: { word: "discipline", sentence: "La discipline rend ma pratique régulière." },
-    consistent: { word: "régulier", sentence: "Une pratique régulière crée de vrais progrès." },
-    curious: { word: "curieux", sentence: "Restez curieux quand un nouveau mot semble difficile." },
-    explore: { word: "explorer", sentence: "J’aime explorer de nouveaux lieux et de nouvelles idées." },
-    prepare: { word: "préparer", sentence: "Je me prépare un peu avant chaque leçon." },
-  },
-  ar: {
-    improve: { word: "يتحسن", sentence: "أريد أن أحسّن لغتي الإنجليزية." },
-    achieve: { word: "يحقق / ينجز", sentence: "تساعدني الخطوات الصغيرة على تحقيق أهدافي." },
-    effort: { word: "جهد", sentence: "كل جهد يجعل الخطوة التالية أسهل." },
-    discipline: { word: "انضباط", sentence: "يحافظ الانضباط على انتظام تدرّبي." },
-    consistent: { word: "منتظم", sentence: "يُحدث التدرّب المنتظم تقدماً حقيقياً." },
-    curious: { word: "فضولي", sentence: "ابق فضولياً عندما تبدو كلمة جديدة صعبة." },
-    explore: { word: "يستكشف", sentence: "أحب استكشاف أماكن وأفكار جديدة." },
-    prepare: { word: "يستعد", sentence: "أستعد قليلاً قبل كل درس." },
-  },
-  es: {
-    improve: { word: "mejorar", sentence: "Quiero mejorar mi inglés." },
-    achieve: { word: "lograr / alcanzar", sentence: "Los pequeños pasos me ayudan a alcanzar mis objetivos." },
-    effort: { word: "esfuerzo", sentence: "Cada esfuerzo hace más fácil el siguiente paso." },
-    discipline: { word: "disciplina", sentence: "La disciplina mantiene constante mi práctica." },
-    consistent: { word: "constante", sentence: "La práctica constante crea un progreso real." },
-    curious: { word: "curioso", sentence: "Mantente curioso cuando una palabra nueva parezca difícil." },
-    explore: { word: "explorar", sentence: "Me encanta explorar lugares e ideas nuevas." },
-    prepare: { word: "preparar", sentence: "Me preparo un poco antes de cada lección." },
-  },
-};
+const retryableStatusCodes = new Set([408, 409, 429, 500, 502, 503, 504]);
 
-function sentenceForLanguage(text: string, targetLanguage: string) {
-  const clean = text.trim().toLowerCase();
-  const templates: Record<string, string> = {
-    en: `I am learning how to use ${clean} naturally.`,
-    es: `Estoy aprendiendo a usar ${clean} de forma natural.`,
-    fr: `J’apprends à utiliser ${clean} naturellement.`,
-    de: `Ich lerne, ${clean} natürlich zu verwenden.`,
-    pt: `Estou aprendendo a usar ${clean} naturalmente.`,
-    it: `Sto imparando a usare ${clean} in modo naturale.`,
-    tr: `${clean} kelimesini doğal şekilde kullanmayı öğreniyorum.`,
-    ja: `${clean}を自然に使えるように学んでいます。`,
-    ko: `${clean}을 자연스럽게 사용하는 법을 배우고 있어요.`,
-    zh: `我正在学习自然地使用${clean}。`,
-    ru: `Я учусь естественно использовать слово ${clean}.`,
-  };
-  return templates[targetLanguage] ?? templates.en;
+function isProcessedWord(value: unknown): value is ProcessedWord {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Record<string, unknown>;
+  return typeof item.word === "string" &&
+    typeof item.translation === "string" &&
+    typeof item.partOfSpeech === "string" &&
+    supportedPartsOfSpeech.includes(item.partOfSpeech as PartOfSpeech) &&
+    Array.isArray(item.alternativePartsOfSpeech) &&
+    item.alternativePartsOfSpeech.every((part) => typeof part === "string") &&
+    typeof item.pronunciation === "string" &&
+    typeof item.exampleSentence === "string" &&
+    typeof item.exampleTranslation === "string" &&
+    typeof item.meaning === "string";
 }
 
-function wordDetails(text: string, nativeLanguage = "en", targetLanguage = "en") {
-  const clean = text.trim().toLowerCase();
-  const knownExample = examples[clean];
-  const example = targetLanguage === "en" && knownExample ? knownExample : {
-    meaning: "",
-    pronunciation: `/${clean}/`,
-    sentence: sentenceForLanguage(clean, targetLanguage),
-  };
-  const localized = targetLanguage === "en" ? translations[nativeLanguage]?.[clean] : undefined;
-  return {
-    ...example,
-    translation: localized?.word ?? "",
-    sentenceTranslation: localized?.sentence ?? "",
-  };
+async function processWordsWithGemini(words: string[], nativeLanguage: string, targetLanguage: string): Promise<ProcessedWord[]> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
+
+  const ai = new GoogleGenAI({ apiKey });
+  const prompt = `You are a careful language-learning lexicographer.
+Process every input word and return only valid JSON in this exact shape:
+{"words":[{"word":"...","translation":"...","meaning":"...","partOfSpeech":"Verb","alternativePartsOfSpeech":[],"pronunciation":"...","exampleSentence":"...","exampleTranslation":"..."}]}
+
+Native language: ${nativeLanguage}
+Target language: ${targetLanguage}
+Input words: ${JSON.stringify(words)}
+
+Rules:
+- Return exactly one item for every input word, in the same order.
+- Keep word in the target-language form provided by the user.
+- Translate each word and example sentence into the native language.
+- Write the example sentence in the target language.
+- Use only these partOfSpeech values: ${supportedPartsOfSpeech.join(", ")}.
+- Use alternativePartsOfSpeech for genuine additional grammatical uses; otherwise [].
+- Do not omit, invent, or merge input words.`;
+
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: { responseMimeType: "application/json", maxOutputTokens: 8192 },
+      });
+      const raw = response.text?.trim();
+      if (!raw) throw new Error("Gemini returned an empty response");
+      const parsed: unknown = JSON.parse(raw);
+      const items = parsed && typeof parsed === "object" && Array.isArray((parsed as { words?: unknown }).words)
+        ? (parsed as { words: unknown[] }).words
+        : null;
+      if (!items || items.length !== words.length || !items.every(isProcessedWord)) {
+        throw new Error("Gemini returned invalid word data");
+      }
+      return items.map((item, index) => ({ ...item, word: words[index] }));
+    } catch (error) {
+      lastError = error;
+      const status = (error as { status?: number }).status;
+      if (attempt === 2 || (status != null && !retryableStatusCodes.has(status))) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 300 * 2 ** attempt));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("Gemini processing failed");
 }
 
 function statusForMastery(mastery: number) {
@@ -298,9 +263,21 @@ router.post("/word-sets", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const words = [...new Set(parsed.data.words.map((word) => word.trim().toLowerCase()).filter(Boolean))];
+  const words = parsed.data.words.map((word) => word.trim()).filter(Boolean);
   if (words.length < 4) {
-    res.status(400).json({ error: "Add at least four unique words." });
+    res.status(400).json({ error: "Add at least four words." });
+    return;
+  }
+  let processedWords: ProcessedWord[];
+  try {
+    processedWords = await processWordsWithGemini(
+      words,
+      parsed.data.nativeLanguage,
+      parsed.data.targetLanguage,
+    );
+  } catch (error) {
+    console.error("Gemini word processing failed", error);
+    res.status(502).json({ error: "AI processing failed. Nothing was saved; please retry." });
     return;
   }
   const set = await db.transaction(async (tx) => {
@@ -311,10 +288,17 @@ router.post("/word-sets", async (req, res): Promise<void> => {
       targetLanguage: parsed.data.targetLanguage,
     }).returning();
     if (!set) throw new Error("Unable to create word set");
-    await tx.insert(wordsTable).values(words.map((text) => {
-      const details = wordDetails(text, parsed.data.nativeLanguage, parsed.data.targetLanguage);
-      return { setId: set.id, text, ...details };
-    }));
+    await tx.insert(wordsTable).values(processedWords.map((item) => ({
+      setId: set.id,
+      text: item.word.trim(),
+      meaning: item.meaning,
+      translation: item.translation,
+      partOfSpeech: item.partOfSpeech,
+      alternativePartsOfSpeech: item.alternativePartsOfSpeech,
+      pronunciation: item.pronunciation,
+      sentence: item.exampleSentence,
+      sentenceTranslation: item.exampleTranslation,
+    })));
     return set;
   });
   const payload = set ? await getSetPayload(set.id) : null;

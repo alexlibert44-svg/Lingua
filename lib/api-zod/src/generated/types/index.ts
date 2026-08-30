@@ -18,6 +18,8 @@ export * from './profileUpdate';
 export * from './review';
 export * from './skill';
 export * from './word';
+export * from './wordAlternativePartsOfSpeechItem';
+export * from './wordPartOfSpeech';
 export * from './wordSet';
 export * from './wordSetInput';
 export * from './wordSetSummary';

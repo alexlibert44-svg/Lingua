@@ -34,12 +34,46 @@ export const Skill = {
   tense_form: 'tense_form',
 } as const;
 
+export type WordPartOfSpeech = typeof WordPartOfSpeech[keyof typeof WordPartOfSpeech];
+
+
+export const WordPartOfSpeech = {
+  Noun: 'Noun',
+  Verb: 'Verb',
+  Adjective: 'Adjective',
+  Adverb: 'Adverb',
+  Pronoun: 'Pronoun',
+  Preposition: 'Preposition',
+  Conjunction: 'Conjunction',
+  'Article_/_Determiner': 'Article / Determiner',
+  Expression: 'Expression',
+  Other: 'Other',
+} as const;
+
+export type WordAlternativePartsOfSpeechItem = typeof WordAlternativePartsOfSpeechItem[keyof typeof WordAlternativePartsOfSpeechItem];
+
+
+export const WordAlternativePartsOfSpeechItem = {
+  Noun: 'Noun',
+  Verb: 'Verb',
+  Adjective: 'Adjective',
+  Adverb: 'Adverb',
+  Pronoun: 'Pronoun',
+  Preposition: 'Preposition',
+  Conjunction: 'Conjunction',
+  'Article_/_Determiner': 'Article / Determiner',
+  Expression: 'Expression',
+  Other: 'Other',
+} as const;
+
 export interface Word {
   id: number;
   setId: number;
   text: string;
   meaning: string;
   translation: string;
+  partOfSpeech: WordPartOfSpeech;
+  alternativePartsOfSpeech: WordAlternativePartsOfSpeechItem[];
   pronunciation: string;
   sentence: string;
   sentenceTranslation: string;

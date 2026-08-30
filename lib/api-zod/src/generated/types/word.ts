@@ -5,6 +5,8 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { WordAlternativePartsOfSpeechItem } from './wordAlternativePartsOfSpeechItem';
+import type { WordPartOfSpeech } from './wordPartOfSpeech';
 import type { WordStatus } from './wordStatus';
 
 export interface Word {
@@ -13,6 +15,8 @@ export interface Word {
   text: string;
   meaning: string;
   translation: string;
+  partOfSpeech: WordPartOfSpeech;
+  alternativePartsOfSpeech: WordAlternativePartsOfSpeechItem[];
   pronunciation: string;
   sentence: string;
   sentenceTranslation: string;

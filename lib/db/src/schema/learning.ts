@@ -42,6 +42,8 @@ export const wordsTable = pgTable("words", {
   text: text("text").notNull(),
   meaning: text("meaning").notNull().default("A useful word to practice in context"),
   translation: text("translation").notNull().default(""),
+  partOfSpeech: text("part_of_speech").notNull().default("Other"),
+  alternativePartsOfSpeech: text("alternative_parts_of_speech").array().notNull().default([]),
   pronunciation: text("pronunciation").notNull().default("/practice/"),
   sentence: text("sentence").notNull(),
   sentenceTranslation: text("sentence_translation").notNull().default(""),
